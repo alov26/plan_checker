@@ -4,10 +4,38 @@ from file_dop import normalize
 
 
 def get_period_dates(period):
-    start_text, end_text = period.split("_")
+    parts = period.split("_")
 
-    start = date.fromisoformat(start_text)
-    end = date.fromisoformat(end_text)
+    if len(parts) != 2:
+        raise ValueError(
+            f"Неверное название периода: {period}. "
+            "Нужен формат YYYY-MM-DD_YYYY-MM-DD."
+        )
+
+    start_text, end_text = parts
+
+    try:
+        start = date.fromisoformat(start_text)
+        end = date.fromisoformat(end_text)
+    except ValueError:
+        raise ValueError(
+            f"Неверные даты в периоде: {period}. "
+            "Проверьте даты и формат YYYY-MM-DD_YYYY-MM-DD."
+        ) from None
+
+    if (
+        start.isoformat() != start_text
+        or end.isoformat() != end_text
+    ):
+        raise ValueError(
+            f"Неверный формат периода: {period}. "
+            "Нужен формат YYYY-MM-DD_YYYY-MM-DD."
+        )
+
+    if start > end:
+        raise ValueError(
+            f"В периоде {period} дата начала позже даты окончания."
+        )
 
     return start, end
 

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from file_dop import read_csv, read_enterprises, group_tasks
-from checks import find_repeats
+from checks import find_repeats, get_period_dates
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -34,6 +34,12 @@ if not files:
     print("В папке нет CSV-файлов с планами:", data_folder)
     raise SystemExit(1)
 
+for path in files:
+    try:
+        get_period_dates(path.stem)
+    except ValueError as error:
+        print(f"Ошибка в имени файла {path.name}: {error}")
+        raise SystemExit(1)
 
 history = {}
 

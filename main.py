@@ -4,9 +4,36 @@ from file_dop import read_csv, read_enterprises, group_tasks
 from checks import find_repeats
 
 
-enterprises = read_enterprises("enterprises.txt")
+BASE_DIR = Path(__file__).resolve().parent
 
-files = sorted(Path("data").glob("*.csv"))
+enterprises_path = BASE_DIR / "enterprises.txt"
+data_folder = BASE_DIR / "data"
+report_folder = BASE_DIR / "reports"
+
+
+if not enterprises_path.is_file():
+    print("Не найден список предприятий:", enterprises_path)
+    raise SystemExit(1)
+
+
+enterprises = read_enterprises(enterprises_path)
+
+if not enterprises:
+    print("Список предприятий пуст:", enterprises_path)
+    raise SystemExit(1)
+
+
+if not data_folder.is_dir():
+    print("Не найдена папка с планами:", data_folder)
+    raise SystemExit(1)
+
+
+files = sorted(data_folder.glob("*.csv"))
+
+if not files:
+    print("В папке нет CSV-файлов с планами:", data_folder)
+    raise SystemExit(1)
+
 
 history = {}
 
@@ -73,8 +100,8 @@ for item in repeats:
     )
     report_lines.append("")
 
-report_folder = Path("reports")
 report_folder.mkdir(exist_ok=True)
+
 
 report_path = report_folder / "repeats.txt"
 

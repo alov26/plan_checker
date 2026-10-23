@@ -47,7 +47,9 @@ print("Найдено файлов:", len(files))
 
 for path in files:
     rows = read_csv(path)
-    plans = group_tasks(rows, enterprises)
+    plans, empty_enterprises, no_tasks_enterprises = group_tasks(
+    rows, enterprises
+    )
 
     history[path.stem] = plans
 
@@ -88,12 +90,37 @@ for item in repeats:
     print()
 
 report_lines = [
-    "ПОВТОРЯЮЩИЕСЯ ЗАДАЧИ",
-    "Проверка последнего периода: " + sorted(history)[-1],
+    "ОТЧЁТ ПО ПРОВЕРКЕ ПЛАНОВ",
+    "Проверяемый период: " + sorted(history)[-1],
     "",
+    "1. ЗАПОЛНЕНИЕ",
+    "",
+    "Предприятия, не заполнившие ни одной задачи:",
+]
+
+if empty_enterprises:
+    for name in empty_enterprises:
+        report_lines.append("- " + name)
+else:
+    report_lines.append("Таких предприятий нет.")
+
+report_lines.append("")
+report_lines.append("Предприятия, которые написали «нет» или «-»:")
+
+if no_tasks_enterprises:
+    for name in no_tasks_enterprises:
+        report_lines.append("- " + name)
+else:
+    report_lines.append("Таких предприятий нет.")
+
+report_lines.extend([
+    "",
+    "2. ПОВТОРЫ ЗАДАЧ",
+    "",
+    "Задачи, повторяющиеся три последовательных периода и более.",
     "Повтор текста — повод для проверки, а не доказательство копирования.",
     "",
-]
+])
 
 if not repeats:
     report_lines.append("Подтверждённые повторы не найдены.")

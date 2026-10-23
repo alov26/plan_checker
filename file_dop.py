@@ -37,6 +37,7 @@ def read_enterprises(path):
 def group_tasks(rows, enterprises):
     plans = {}
     names = {}
+    marked_enterprises = set()
 
     for name in enterprises:
         names[normalize(name)] = name
@@ -61,7 +62,25 @@ def group_tasks(rows, enterprises):
             if current_enterprise not in plans:
                 plans[current_enterprise] = []
 
-        if current_enterprise is not None and not is_empty(task):
+        if current_enterprise is None:
+            continue
+
+        if normalize(task) in {"нет", "-", "—", "н/д"}:
+            marked_enterprises.add(current_enterprise)
+
+        elif not is_empty(task):
             plans[current_enterprise].append(task)
 
-    return plans
+    empty_enterprises = []
+    no_tasks_enterprises = []
+
+    for name in enterprises:
+        if plans.get(name):
+            continue
+
+        if name in marked_enterprises:
+            no_tasks_enterprises.append(name)
+        else:
+            empty_enterprises.append(name)
+
+    return plans, empty_enterprises, no_tasks_enterprises

@@ -117,8 +117,6 @@ def find_common_projects(plans, projects):
                 for symbol in '«»"“”„':
                     text = text.replace(symbol, "")
 
-                text = normalize(text)
-
                 found = False
 
                 for variant in variants:

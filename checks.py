@@ -102,3 +102,79 @@ def find_repeats(history):
                 })
 
     return results
+
+def find_common_projects(plans, projects):
+    results = []
+
+    for project_name, variants in projects.items():
+        project_count = 0
+        enterprises = []
+
+        for enterprise, tasks in plans.items():
+            for task in tasks:
+                text = normalize(task)
+
+                for symbol in '«»"“”„':
+                    text = text.replace(symbol, "")
+
+                text = normalize(text)
+
+                found = False
+
+                for variant in variants:
+                    if variant in text:
+                        found = True
+                        break
+
+                if found:
+                    project_count += 1
+
+                    if enterprise not in enterprises:
+                        enterprises.append(enterprise)
+
+        if project_count >= 3:
+            results.append({
+                "project": project_name,
+                "count": project_count,
+                "enterprises": enterprises,
+            })
+
+    return results
+
+def find_common_projects(plans, projects):
+    results = []
+
+    for project_name, variants in projects.items():
+        project_count = 0
+        enterprises = []
+
+        for enterprise, tasks in plans.items():
+            for task in tasks:
+                text = normalize(task)
+
+                for symbol in '«»"“”„':
+                    text = text.replace(symbol, "")
+
+                text = normalize(text)
+
+                found = False
+
+                for variant in variants:
+                    if variant in text:
+                        found = True
+                        break
+
+                if found:
+                    project_count += 1
+
+                    if enterprise not in enterprises:
+                        enterprises.append(enterprise)
+
+        if project_count >= 3:
+            results.append({
+                "project": project_name,
+                "count": project_count,
+                "enterprises": enterprises,
+            })
+
+    return results

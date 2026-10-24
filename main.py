@@ -1,12 +1,21 @@
 from pathlib import Path
 
-from file_dop import read_csv, read_enterprises, group_tasks
-from checks import find_repeats, get_period_dates
-
+from file_dop import (
+    read_csv,
+    read_enterprises,
+    read_projects,
+    group_tasks,
+)
+from checks import (
+    find_repeats,
+    get_period_dates,
+    find_common_projects,
+)
 
 BASE_DIR = Path(__file__).resolve().parent
 
 enterprises_path = BASE_DIR / "enterprises.txt"
+projects_path = BASE_DIR / "projects.txt"
 data_folder = BASE_DIR / "data"
 report_folder = BASE_DIR / "reports"
 
@@ -27,6 +36,19 @@ if not data_folder.is_dir():
     print("Не найдена папка с планами:", data_folder)
     raise SystemExit(1)
 
+if not projects_path.is_file():
+    print("Не найден справочник проектов:", projects_path)
+    raise SystemExit(1)
+
+try:
+    projects = read_projects(projects_path)
+except (OSError, UnicodeError, ValueError) as error:
+    print("Ошибка чтения справочника проектов:", error)
+    raise SystemExit(1)
+
+if not projects:
+    print("Справочник проектов пуст:", projects_path)
+    raise SystemExit(1)
 
 files = sorted(data_folder.glob("*.csv"))
 
@@ -75,6 +97,20 @@ for path in files:
 
 
 repeats = find_repeats(history)
+latest_period = sorted(history)[-1]
+latest_plans = history[latest_period]
+
+common_projects = find_common_projects(
+    latest_plans, projects
+)
+
+
+latest_period = sorted(history)[-1]
+latest_plans = history[latest_period]
+
+common_projects = find_common_projects(
+    latest_plans, projects
+)
 
 print()
 print("ЗАДАЧИ С ПОВТОРОМ ОТ ТРЁХ ПЕРИОДОВ ПОДРЯД")
@@ -91,7 +127,7 @@ for item in repeats:
 
 report_lines = [
     "ОТЧЁТ ПО ПРОВЕРКЕ ПЛАНОВ",
-    "Проверяемый период: " + sorted(history)[-1],
+    "Проверяемый период: " + latest_period,
     "",
     "1. ЗАПОЛНЕНИЕ",
     "",
@@ -133,8 +169,29 @@ for item in repeats:
     )
     report_lines.append("")
 
-report_folder.mkdir(exist_ok=True)
+report_lines.extend([
+    "",
+    "3. ОБЩИЕ ПРОЕКТЫ",
+    "",
+])
 
+if not common_projects:
+    report_lines.append(
+        "Проекты с тремя и более упоминаниями не найдены."
+    )
+
+for item in common_projects:
+    report_lines.append("Проект: " + item["project"])
+    report_lines.append(
+        "Количество упоминаний: " + str(item["count"])
+    )
+    report_lines.append(
+        "Предприятия: " + ", ".join(item["enterprises"])
+    )
+    report_lines.append("")
+
+
+report_folder.mkdir(exist_ok=True)
 
 report_path = report_folder / "repeats.txt"
 

@@ -104,14 +104,6 @@ common_projects = find_common_projects(
     latest_plans, projects
 )
 
-
-latest_period = sorted(history)[-1]
-latest_plans = history[latest_period]
-
-common_projects = find_common_projects(
-    latest_plans, projects
-)
-
 print()
 print("ЗАДАЧИ С ПОВТОРОМ ОТ ТРЁХ ПЕРИОДОВ ПОДРЯД")
 print()
@@ -154,8 +146,6 @@ report_lines.extend([
     "2. ПОВТОРЫ ЗАДАЧ",
     "",
     "Задачи, повторяющиеся три последовательных периода и более.",
-    "Повтор текста — повод для проверки, а не доказательство копирования.",
-    "",
 ])
 
 if not repeats:
